@@ -3,8 +3,20 @@ var request = require('request')
 	, fs = require('fs')
 	, async = require('async')
 	, jquery = fs.readFileSync('public/javascripts/jquery.js', 'utf-8')
-	, articleData = [];
+	, articleData = []
+	, imgur = require('imgur');
 
+
+imgur.setClientId('fe831b31baf537f');
+
+imgur.uploadUrl('http://farm3.staticflickr.com/2858/9646274624_490c8337bb_o.jpg')
+    .then(function (json) {
+    	console.log(json);
+        console.log(json.data.link);
+    })
+    .catch(function (err) {
+        console.error(err.message);
+    });
 
 function getArticlesList (done) {
 
