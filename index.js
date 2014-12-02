@@ -3,24 +3,24 @@ var request = require('request')
 	, fs = require('fs')
 	, async = require('async')
 	, jquery = fs.readFileSync('public/javascripts/jquery.js', 'utf-8')
-	, articleData = []
-	, imgur = require('imgur');
+	, imgur = require('./imgur');
 
 
-imgur.setClientId('fe831b31baf537f');
+// imgur.setClientId('fe831b31baf537f');
 
-imgur.uploadUrl('http://farm3.staticflickr.com/2858/9646274624_490c8337bb_o.jpg')
-    .then(function (json) {
-    	console.log(json);
-        console.log(json.data.link);
-    })
-    .catch(function (err) {
-        console.error(err.message);
-    });
+// imgur.uploadUrl('http://farm3.staticflickr.com/2858/9646274624_490c8337bb_o.jpg')
+//     .then(function (json) {
+//     	console.log(json);
+//         console.log(json.data.link);
+//     })
+//     .catch(function (err) {
+//         console.error(err.message);
+//     });
 
 function getArticlesList (done) {
 
 	request.get('http://www.teepr.com/', function (err, response, body) {
+		var articleData = [];
 		if (!err && response.statusCode == 200) {
 			var $ = cheerio.load(body);
 			$('.latestPost > a').each(function (index, article) {
@@ -31,17 +31,17 @@ function getArticlesList (done) {
      				thumbnail : thumbnail
      			});
      		});
-			return done();
+			return done(null, articleData);
 		}
 	});
 }
 
-function getArticle (done) {
+function getArticle (articleData, done) {
+	console.log(articleData);
+	async.each(articleData, function (article, done) {
 
-	async.each(articleData, function (articleData, done) {
-
-		var link = articleData.link
-			, thumbnail = articleData.thumbnail;
+		var link = article.link
+			, thumbnail = article.thumbnail;
 
 		request(link, function (err, response, body) {
 			if (!err && response.statusCode == 200) {
@@ -49,7 +49,6 @@ function getArticle (done) {
 				var $ = cheerio.load(body);
 
 				var title = $('.single-title').text();
-				console.log($('.featured-thumbnail img'));
 
 				$('.post-single-content .topad').replaceWith('');
 				$('.post-single-content .post-page-number').replaceWith('');
@@ -64,10 +63,16 @@ function getArticle (done) {
 
 			}
 		});
+	}, function (err, results) {
+		if (err) {
+			done(err);
+		} else {
+			done();
+		}
 	});
 }
 
-async.series([getArticlesList, getArticle], function (err, results) {
+async.waterfall([getArticlesList, getArticle], function (err, results) {
 	if (err) {
 		console.log(err);
 	} else {
