@@ -1,6 +1,8 @@
-var config = {
+module.exports = {
 
-	imgur_apis : {
+	clientIdPrefix : 'Client-ID ',
+
+	imgurApis : {
 		v3 : {
 			image_upload : {
 				method : 'post',
@@ -10,6 +12,3 @@ var config = {
 	}
 
 };
-
-
-module.exports = config;

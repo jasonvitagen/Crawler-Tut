@@ -3,19 +3,21 @@ var request = require('request')
 	, fs = require('fs')
 	, async = require('async')
 	, jquery = fs.readFileSync('public/javascripts/jquery.js', 'utf-8')
-	, imgur = require('./imgur');
+	, Imgur = require('./homebrew_modules/imgur');
 
+// var imgur = new Imgur({
+// 	clientId : 'fe831b31baf537f'
+// });
 
-// imgur.setClientId('fe831b31baf537f');
-
-// imgur.uploadUrl('http://farm3.staticflickr.com/2858/9646274624_490c8337bb_o.jpg')
-//     .then(function (json) {
-//     	console.log(json);
-//         console.log(json.data.link);
-//     })
-//     .catch(function (err) {
-//         console.error(err.message);
-//     });
+// imgur.uploadUrl({
+// 	imageUrl : 'http://farm3.staticflickr.com/2858/9646274624_490c8337bb_o.jpg'
+// }, function (err, response) {
+// 	if (err) {
+// 		console.log(err);
+// 	} else {
+// 		console.log(response.body);
+// 	}
+// });
 
 function getArticlesList (done) {
 
@@ -72,10 +74,10 @@ function getArticle (articleData, done) {
 	});
 }
 
-async.waterfall([getArticlesList, getArticle], function (err, results) {
-	if (err) {
-		console.log(err);
-	} else {
-		console.log('Crawled successful!');
-	}
-});
+// async.waterfall([getArticlesList, getArticle], function (err, results) {
+// 	if (err) {
+// 		console.log(err);
+// 	} else {
+// 		console.log('Crawled successful!');
+// 	}
+// });
