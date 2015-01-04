@@ -1,4 +1,6 @@
-var Teepr = require('./homebrew_modules/crawlers/teepr');
+var Teepr = require('./plugins/crawlers/teepr')
+	, Gigacircle = require('./plugins/crawlers/gigacircle')
+	, Lifetw = require('./plugins/crawlers/lifetw');
 
 // var imgur = new Imgur({
 // 	clientId : 'fe831b31baf537f'
@@ -77,8 +79,20 @@ var Teepr = require('./homebrew_modules/crawlers/teepr');
 // 	}
 // });
 
-Teepr.getArticle({
-	articleLink : 'http://www.teepr.com/87785/7%E6%AD%B2%E5%B0%8F%E7%94%B7%E5%AD%A9%E5%9C%A8%E5%B9%B3%E5%AE%89%E5%A4%9C%E8%A6%81%E5%81%B7%E6%8B%8D%E8%81%96%E8%AA%95%E8%80%81%E4%BA%BA%E7%9A%84%E8%B9%A4%E8%B7%A1%EF%BC%8C%E6%B2%92%E6%83%B3%E5%88%B0/'
+// Teepr.getArticle({
+// 	articleLink : 'http://www.teepr.com/87785/7%E6%AD%B2%E5%B0%8F%E7%94%B7%E5%AD%A9%E5%9C%A8%E5%B9%B3%E5%AE%89%E5%A4%9C%E8%A6%81%E5%81%B7%E6%8B%8D%E8%81%96%E8%AA%95%E8%80%81%E4%BA%BA%E7%9A%84%E8%B9%A4%E8%B7%A1%EF%BC%8C%E6%B2%92%E6%83%B3%E5%88%B0/'
+// }, function (err, article) {
+// 	console.log(article);
+// });
+
+// Gigacircle.getArticle({
+// 	articleLink : 'http://tw.gigacircle.com/3378584-1'
+// }, function (err, article) {
+// 	console.log(article);
+// });
+
+Lifetw.getArticle({
+	articleLink : 'https://www.life.com.tw/?app=view&no=215328'
 }, function (err, article) {
 	console.log(article);
 });
