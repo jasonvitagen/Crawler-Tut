@@ -1,6 +1,12 @@
 var Teepr = require('./plugins/crawlers/teepr')
 	, Gigacircle = require('./plugins/crawlers/gigacircle')
-	, Lifetw = require('./plugins/crawlers/lifetw');
+	, Lifetw = require('./plugins/crawlers/lifetw')
+	, fs = require('fs')
+	, async = require('async')
+	, mongoose = require('mongoose')
+	, request = require('request');
+
+mongoose.connect('mongodb://localhost:27017/crawledarticles');
 
 // var imgur = new Imgur({
 // 	clientId : 'fe831b31baf537f'
@@ -80,9 +86,12 @@ var Teepr = require('./plugins/crawlers/teepr')
 // });
 
 // Teepr.getArticle({
-// 	articleLink : 'http://www.teepr.com/87785/7%E6%AD%B2%E5%B0%8F%E7%94%B7%E5%AD%A9%E5%9C%A8%E5%B9%B3%E5%AE%89%E5%A4%9C%E8%A6%81%E5%81%B7%E6%8B%8D%E8%81%96%E8%AA%95%E8%80%81%E4%BA%BA%E7%9A%84%E8%B9%A4%E8%B7%A1%EF%BC%8C%E6%B2%92%E6%83%B3%E5%88%B0/'
+// 	articleLink : 'http://www.teepr.com/89622/jason-mraz%E5%8F%B0%E5%8C%97%E6%BC%94%E5%94%B1%E6%9C%83%E6%89%BE%E4%BE%86%E8%A7%80%E7%9C%BE/'
 // }, function (err, article) {
 // 	console.log(article);
+// 	fs.writeFile('demo.txt', JSON.stringify(article), function (err) {
+
+// 	});
 // });
 
 // Gigacircle.getArticle({
@@ -91,8 +100,81 @@ var Teepr = require('./plugins/crawlers/teepr')
 // 	console.log(article);
 // });
 
-Lifetw.getArticle({
-	articleLink : 'https://www.life.com.tw/?app=view&no=215328'
-}, function (err, article) {
-	console.log(article);
+// Lifetw.getArticle({
+// 	articleLink : 'https://www.life.com.tw/?app=view&no=215328'
+// }, function (err, article) {
+// 	// fs.writeFile('demo.txt', article.content, function (err) {
+// 	// });
+// 	console.log(article);
+// });
+
+// Teepr.getArticleLinksFromCategory({
+// 	categoryLink : 'http://www.teepr.com/category/%E5%BD%B1%E7%89%87/'
+// }, function (err, articleLinks) {
+// 	if (err) {
+// 		return console.log(err);
+// 	}
+// 	console.log(articleLinks);
+// });
+
+// Lifetw.getArticleLinksFromCategory({
+// 	categoryLink : 'https://www.life.com.tw/?app=category&act=categorylist&no=8'
+// }, function (err, articleLinks) {
+// 	if (err) {
+// 		return console.log(err);
+// 	}
+// 	console.log(articleLinks);
+// });
+
+
+
+function getArticleLinks (done) {
+	Teepr.getArticleLinksFromCategory({
+		categoryLink : 'http://www.teepr.com/category/%E5%BD%B1%E7%89%87/'
+	}, function (err, articleLinks) {
+		if (err) {
+			return console.log(err);
+		}
+		done(null, articleLinks);
+	});
+}
+
+function getArticles (articleLinks, done) {
+	var crawledArticles = [];
+	async.each(articleLinks, function (articleLink, okay) {
+
+		console.log('got');
+		Teepr.getArticle({
+			articleLink : articleLink.link
+		}, function (err, article) {
+			if (err) {
+				okay(err);
+			} else {
+				crawledArticles.push(article);
+				okay();
+			}
+		});
+	}, function (err) {
+		if (err) {
+			done(err);
+		} else {
+			done(null, crawledArticles);
+		}
+	});
+
+}
+
+function postArticles (crawledArticles, done) {
+	console.log(crawledArticles);
+	fs.writeFile('demo.txt', JSON.stringify(crawledArticles), function (err) {
+
+	});
+	done();
+}
+
+async.waterfall([getArticleLinks, getArticles, postArticles], function (err, results) {
+	if (err) {
+		return console.log(err);
+	}
+	console.log('All tasks completed');
 });

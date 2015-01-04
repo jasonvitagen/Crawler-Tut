@@ -25,4 +25,31 @@ Lifetw.getArticle = function (args, callback) {
 	});
 }
 
+Lifetw.getArticleLinksFromCategory = function (args, callback) {
+
+	if (!args) {
+		return callback('No args');
+	}
+	if (!args.categoryLink) {
+		return callback('No category link');
+	}
+
+	request(args.categoryLink, function (err, response, body) {
+		if (!err && response.statusCode == 200) {
+
+			behaviors.getArticleLinksFromCategory({
+				body : body
+			}, function (err, articleLinks) {
+				if (err) {
+					return callback(err);
+				}
+				return callback(null, articleLinks);
+			});
+
+		}
+	});
+
+		
+}
+
 module.exports = Lifetw;
