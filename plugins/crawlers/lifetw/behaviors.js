@@ -40,7 +40,7 @@ behaviors.getArticleLinksFromCategory = function (args, callback) {
 	$('.life-list li').each(function (i, article) {
 		var articleLink = {};
 		articleLink.link = 'http://www.life.com.tw' + $(this).find('a').attr('href');
-		articleLink.thumnail = $(this).find('img').attr('src');
+		articleLink.thumbnail = $(this).find('img').attr('src');
 		articleLinks.push(articleLink);
 	});
 

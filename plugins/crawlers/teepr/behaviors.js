@@ -50,7 +50,7 @@ behaviors.getArticleLinksFromCategory = function (args, callback) {
 	$('#content_box article').each(function (i, article) {
 		var articleLink = {};
 		articleLink.link = $(this).find('a').attr('href');
-		articleLink.thumnail = $(this).find('img').attr('src');
+		articleLink.thumbnail = $(this).find('img').attr('src');
 		articleLinks.push(articleLink);
 	});
 

@@ -10,6 +10,9 @@ Lifetw.getArticle = function (args, callback) {
 	if (!args.articleLink) {
 		return callback('No article link');
 	}
+	if (!args.articleThumbnail) {
+		return callback('No article thumbnail');
+	}
 
 	request(args.articleLink, function (err, response, body) {
 		if (!err && response.statusCode == 200) {
@@ -19,6 +22,8 @@ Lifetw.getArticle = function (args, callback) {
 				if (err) {
 					return callback(err);
 				}
+				article.thumbnail = args.articleThumbnail;
+				article.crawledLink = args.articleLink;
 				return callback(null, article);
 			});
 		}

@@ -3,10 +3,7 @@ var Teepr = require('./plugins/crawlers/teepr')
 	, Lifetw = require('./plugins/crawlers/lifetw')
 	, fs = require('fs')
 	, async = require('async')
-	, mongoose = require('mongoose')
 	, request = require('request');
-
-mongoose.connect('mongodb://localhost:27017/crawledarticles');
 
 // var imgur = new Imgur({
 // 	clientId : 'fe831b31baf537f'
@@ -123,14 +120,14 @@ mongoose.connect('mongodb://localhost:27017/crawledarticles');
 // 	if (err) {
 // 		return console.log(err);
 // 	}
-// 	console.log(articleLinks);
+
 // });
 
 
 
 function getArticleLinks (done) {
-	Teepr.getArticleLinksFromCategory({
-		categoryLink : 'http://www.teepr.com/category/%E5%BD%B1%E7%89%87/'
+	Lifetw.getArticleLinksFromCategory({
+		categoryLink : 'https://www.life.com.tw/?app=category&act=categorylist&no=8'
 	}, function (err, articleLinks) {
 		if (err) {
 			return console.log(err);
@@ -139,13 +136,32 @@ function getArticleLinks (done) {
 	});
 }
 
+function getUniqueArticleLinks (articleLinks, done) {
+	request.post('http://localhost:3000/crawled/filter-out-duplicate-article-links', {
+		form : {
+			articleLinks : articleLinks
+		}
+	}, function (err, response, body) {
+		if (!err && response.statusCode == 200) {
+			body = JSON.parse(body);
+			if (body.err) {
+				return done(body.err);
+			} else {
+				return done(null, body.articleLinks);
+			}
+		} else {
+			return done('Error in getting unique article links');
+		}
+	});
+}
+
 function getArticles (articleLinks, done) {
 	var crawledArticles = [];
 	async.each(articleLinks, function (articleLink, okay) {
 
-		console.log('got');
-		Teepr.getArticle({
-			articleLink : articleLink.link
+		Lifetw.getArticle({
+			articleLink : articleLink.link,
+			articleThumbnail : articleLink.thumbnail
 		}, function (err, article) {
 			if (err) {
 				okay(err);
@@ -165,14 +181,29 @@ function getArticles (articleLinks, done) {
 }
 
 function postArticles (crawledArticles, done) {
-	console.log(crawledArticles);
 	fs.writeFile('demo.txt', JSON.stringify(crawledArticles), function (err) {
 
 	});
-	done();
+	console.log(crawledArticles);
+	request.post('http://localhost:3000/crawled/get-crawled-articles', {
+		form : {
+			articles : crawledArticles
+		}
+	}, function (err, response, body) {
+		if (!err && response.statusCode == 200) {
+			body = JSON.parse(body);
+			if (body.err) {
+				return done(body.err);
+			} else {
+				return done();
+			}
+		} else {
+			return done('Error in posting articles');
+		}
+	});
 }
 
-async.waterfall([getArticleLinks, getArticles, postArticles], function (err, results) {
+async.waterfall([getArticleLinks, getUniqueArticleLinks, getArticles, postArticles], function (err, results) {
 	if (err) {
 		return console.log(err);
 	}
