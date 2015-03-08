@@ -20,6 +20,8 @@ Gigacircle.getArticle = function (args, callback) {
 				if (err) {
 					return callback(err);
 				}
+				article.thumbnail = args.articleThumbnail;
+				article.crawledLink = args.articleLink;
 				return callback(null, article);
 			});
 

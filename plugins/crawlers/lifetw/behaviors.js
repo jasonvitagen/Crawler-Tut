@@ -12,16 +12,28 @@ behaviors.getArticle = function (args, callback) {
 
 	var $ = cheerio.load(args.body)
 		, title = $('.aricle-detail-top h1').text()
-		, content = '';
+		, content = ''
+		, images = [];
 
 	$('#mainContent script').replaceWith('');
 	$('#mainContent ins').replaceWith('');
+	images = $('#mainContent')
+				.find('img')
+				.toArray()
+				.map(function (item) {
+					return item.attribs.src;
+				})
+				.filter(function (item) {
+					console.log(item);
+					return /http:\/\//.test(item);
+				});
 	content = $('#mainContent').html();
 	content = content.replace(/(\n|\r)/gm, '');
 
 	callback(null, {
 		title : title,
-		content : content
+		content : content,
+		images  : images
 	});
 
 }

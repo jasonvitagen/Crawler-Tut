@@ -12,7 +12,8 @@ behaviors.getArticle = function (args, callback) {
 
 	var $ = cheerio.load(args.body)
 		, title = $('.single-title').text()
-		, content;
+		, content = ''
+		, images = [];
 
 	$('.post-single-content .topad').replaceWith('');
 	$('.post-single-content .post-page-number').replaceWith('');
@@ -26,12 +27,23 @@ behaviors.getArticle = function (args, callback) {
 		$('.post-single-content iframe').replaceWith('<p><iframe allowfullscreen="" frameborder="0" height="360" src="' + youtubeSrc + '" width="640"></iframe></p>');
 	}
 
+	images = $('.post-single-content')
+				.find('img')
+				.toArray()
+				.map(function (item) {
+					return item.attribs.src;
+				})
+				.filter(function (item) {
+					return /http:\/\//.test(item);
+				});
+
 	content = $('.post-single-content').html();
 	content = content.replace(/(\n|\r)/gm, '');
 
 	callback(null, {
 		title   : title,
-		content : content
+		content : content,
+		images  : images
 	});
 
 }

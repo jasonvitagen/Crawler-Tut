@@ -126,8 +126,8 @@ var Teepr = require('./plugins/crawlers/teepr')
 
 
 function getArticleLinks (done) {
-	Lifetw.getArticleLinksFromCategory({
-		categoryLink : 'https://www.life.com.tw/?app=category&act=categorylist&no=8'
+	Gigacircle.getArticleLinksFromCategory({
+		categoryLink : 'http://tw.gigacircle.com/s32-1'
 	}, function (err, articleLinks) {
 		if (err) {
 			return console.log(err);
@@ -159,7 +159,7 @@ function getArticles (articleLinks, done) {
 	var crawledArticles = [];
 	async.each(articleLinks, function (articleLink, okay) {
 
-		Lifetw.getArticle({
+		Gigacircle.getArticle({
 			articleLink : articleLink.link,
 			articleThumbnail : articleLink.thumbnail
 		}, function (err, article) {
@@ -184,7 +184,6 @@ function postArticles (crawledArticles, done) {
 	fs.writeFile('demo.txt', JSON.stringify(crawledArticles), function (err) {
 
 	});
-	console.log(crawledArticles);
 	request.post('http://localhost:3000/crawled/get-crawled-articles', {
 		form : {
 			articles : crawledArticles
@@ -203,7 +202,7 @@ function postArticles (crawledArticles, done) {
 	});
 }
 
-async.waterfall([getArticleLinks, getUniqueArticleLinks, getArticles, postArticles], function (err, results) {
+async.waterfall([getArticleLinks, getArticles, postArticles], function (err, results) {
 	if (err) {
 		return console.log(err);
 	}

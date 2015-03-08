@@ -11,17 +11,28 @@ behaviors.getArticle = function (args, callback) {
 	}
 
 	var $ = cheerio.load(args.body)
-		, title = $('.viewtitle h1').text()
-		, content = '';
+		, title = $('.content-title h1').text()
+		, content = ''
+		, images = [];
 
 	$('.usercontent script').replaceWith('');
 	$('.usercontent ins').replaceWith('');
+	images = $('.usercontent')
+				.find('img')
+				.toArray()
+				.map(function (item) {
+					return item.attribs.src;
+				})
+				.filter(function (item) {
+					return /http:\/\//.test(item);
+				});
 	content = $('.usercontent').html();
 	content = content.replace(/(\n|\r)/gm, '');
 
 	callback(null, {
 		title : title,
-		content : content
+		content : content,
+		images : images
 	});
 
 }
@@ -40,7 +51,8 @@ behaviors.getArticleLinksFromCategory = function (args, callback) {
 	$('.post').each(function (i, article) {
 		var articleLink = {};
 		articleLink.link = $(this).find('.duplicate-title a').attr('href');
-		articleLink.thumnail = $(this).find('.thumbs img').attr('src');
+		articleLink.thumbnail = $(this).find('.thumbs img').attr('src');
+		console.log(articleLink.thumbnail);
 		articleLinks.push(articleLink);
 	});
 
