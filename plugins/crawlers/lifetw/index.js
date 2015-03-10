@@ -13,6 +13,9 @@ Lifetw.getArticle = function (args, callback) {
 	if (!args.articleThumbnail) {
 		return callback('No article thumbnail');
 	}
+	if (!args.articleCategory) {
+		return callback('No article category');
+	}
 
 	request(args.articleLink, function (err, response, body) {
 		if (!err && response.statusCode == 200) {
@@ -24,6 +27,7 @@ Lifetw.getArticle = function (args, callback) {
 				}
 				article.thumbnail = args.articleThumbnail;
 				article.crawledLink = args.articleLink;
+				article.category = args.articleCategory;
 				return callback(null, article);
 			});
 		}

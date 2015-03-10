@@ -123,88 +123,123 @@ var Teepr = require('./plugins/crawlers/teepr')
 
 // });
 
+var crawlCategory = function (args) {
 
+	if (!args) {
+		return console.log('No args');
+	}
+	if (!args.crawler) {
+		return console.log('No "crawler" arg');
+	}
+	if (!args.categoryLink) {
+		return console.log('No "categoryLink" arg');
+	}
+	if (!args.checkUniqueArticleLinksUrl) {
+		return console.log('No "checkUniqueArticleLinksUrl" arg');
+	}
+	if (!args.postArticlesUrl) {
+		return console.log('No "postArticlesUrl" arg');
+	}
+	if (!args.articleCategory) {
+		return console.log('No "category" arg');
+	}
 
-function getArticleLinks (done) {
-	Gigacircle.getArticleLinksFromCategory({
-		categoryLink : 'http://tw.gigacircle.com/s32-1'
-	}, function (err, articleLinks) {
+	var getArticleLinks = function (done) {
+		args.crawler.getArticleLinksFromCategory({
+			categoryLink : args.categoryLink
+		}, function (err, articleLinks) {
+			if (err) {
+				return console.log(err);
+			}
+			done(null, articleLinks);
+		});
+	}
+//'http://tw.gigacircle.com/s32-1'
+// 'http://localhost:3000/crawled/filter-out-duplicate-article-links'
+	var getUniqueArticleLinks = function (articleLinks, done) {
+		request.post(args.checkUniqueArticleLinksUrl, {
+			form : {
+				articleLinks : articleLinks
+			}
+		}, function (err, response, body) {
+			if (!err && response.statusCode == 200) {
+				body = JSON.parse(body);
+				if (body.err) {
+					return done(body.err);
+				} else {
+					return done(null, body.articleLinks);
+				}
+			} else {
+				return done('Error in getting unique article links');
+			}
+		});
+	}
+
+	var getArticles = function (articleLinks, done) {
+		var crawledArticles = [];
+		async.each(articleLinks, function (articleLink, okay) {
+
+			args.crawler.getArticle({
+				articleLink : articleLink.link,
+				articleThumbnail : articleLink.thumbnail,
+				articleCategory : args.articleCategory
+			}, function (err, article) {
+				if (err) {
+					okay(err);
+				} else {
+					crawledArticles.push(article);
+					okay();
+				}
+			});
+		}, function (err) {
+			if (err) {
+				done(err);
+			} else {
+				done(null, crawledArticles);
+			}
+		});
+
+	}
+
+	var postArticles = function (crawledArticles, done) {
+		// fs.writeFile('demo.txt', JSON.stringify(crawledArticles), function (err) {
+
+		// });
+//'http://localhost:3000/crawled/get-crawled-articles'
+		request.post(args.postArticlesUrl, {
+			form : {
+				articles : crawledArticles
+			}
+		}, function (err, response, body) {
+			if (!err && response.statusCode == 200) {
+				body = JSON.parse(body);
+				if (body.err) {
+					return done(body.err);
+				} else {
+					return done();
+				}
+			} else {
+				return done('Error in posting articles');
+			}
+		});
+	}
+
+	async.waterfall([getArticleLinks, getArticles, postArticles], function (err, results) {
 		if (err) {
 			return console.log(err);
 		}
-		done(null, articleLinks);
-	});
-}
-
-function getUniqueArticleLinks (articleLinks, done) {
-	request.post('http://localhost:3000/crawled/filter-out-duplicate-article-links', {
-		form : {
-			articleLinks : articleLinks
-		}
-	}, function (err, response, body) {
-		if (!err && response.statusCode == 200) {
-			body = JSON.parse(body);
-			if (body.err) {
-				return done(body.err);
-			} else {
-				return done(null, body.articleLinks);
-			}
-		} else {
-			return done('Error in getting unique article links');
-		}
-	});
-}
-
-function getArticles (articleLinks, done) {
-	var crawledArticles = [];
-	async.each(articleLinks, function (articleLink, okay) {
-
-		Gigacircle.getArticle({
-			articleLink : articleLink.link,
-			articleThumbnail : articleLink.thumbnail
-		}, function (err, article) {
-			if (err) {
-				okay(err);
-			} else {
-				crawledArticles.push(article);
-				okay();
-			}
-		});
-	}, function (err) {
-		if (err) {
-			done(err);
-		} else {
-			done(null, crawledArticles);
-		}
-	});
+		console.log('All tasks completed');
+	});	
 
 }
 
-function postArticles (crawledArticles, done) {
-	fs.writeFile('demo.txt', JSON.stringify(crawledArticles), function (err) {
+crawlCategory({
 
-	});
-	request.post('http://localhost:3000/crawled/get-crawled-articles', {
-		form : {
-			articles : crawledArticles
-		}
-	}, function (err, response, body) {
-		if (!err && response.statusCode == 200) {
-			body = JSON.parse(body);
-			if (body.err) {
-				return done(body.err);
-			} else {
-				return done();
-			}
-		} else {
-			return done('Error in posting articles');
-		}
-	});
-}
+	crawler : Gigacircle,
+	categoryLink : 'http://tw.gigacircle.com/s32-1',
+	checkUniqueArticleLinksUrl : 'http://localhost:3000/crawled/filter-out-duplicate-article-links',
+	postArticlesUrl : 'http://localhost:3000/crawled/get-crawled-articles',
+	articleCategory : '生活'
 
-async.waterfall([getArticleLinks, getArticles, postArticles], function (err, results) {
-	if (err) {
-		return console.log(err);
-	}
-	console.log('All tasks completed');
 });
+

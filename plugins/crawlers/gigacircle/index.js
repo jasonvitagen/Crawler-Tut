@@ -10,6 +10,9 @@ Gigacircle.getArticle = function (args, callback) {
 	if (!args.articleLink) {
 		return callback('No article link');
 	}
+	if (!args.articleCategory) {
+		return callback('No article category');
+	}
 
 	request(args.articleLink, function (err, response, body) {
 		if (!err && response.statusCode == 200) {
@@ -22,6 +25,7 @@ Gigacircle.getArticle = function (args, callback) {
 				}
 				article.thumbnail = args.articleThumbnail;
 				article.crawledLink = args.articleLink;
+				article.category = args.articleCategory;
 				return callback(null, article);
 			});
 
