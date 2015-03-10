@@ -140,7 +140,7 @@ var crawlCategory = function (args) {
 	if (!args.postArticlesUrl) {
 		return console.log('No "postArticlesUrl" arg');
 	}
-	if (!args.articleCategory) {
+	if (!args.category) {
 		return console.log('No "category" arg');
 	}
 
@@ -182,7 +182,7 @@ var crawlCategory = function (args) {
 			args.crawler.getArticle({
 				articleLink : articleLink.link,
 				articleThumbnail : articleLink.thumbnail,
-				articleCategory : args.articleCategory
+				category : args.category
 			}, function (err, article) {
 				if (err) {
 					okay(err);
@@ -235,11 +235,11 @@ var crawlCategory = function (args) {
 
 crawlCategory({
 
-	crawler : Gigacircle,
-	categoryLink : 'http://tw.gigacircle.com/s32-1',
+	crawler : Teepr,
+	categoryLink : 'http://www.teepr.com/category/%E5%BD%B1%E7%89%87/',
 	checkUniqueArticleLinksUrl : 'http://localhost:3000/crawled/filter-out-duplicate-article-links',
 	postArticlesUrl : 'http://localhost:3000/crawled/get-crawled-articles',
-	articleCategory : '生活'
+	category : '生活'
 
 });
 

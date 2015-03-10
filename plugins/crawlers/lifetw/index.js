@@ -13,7 +13,7 @@ Lifetw.getArticle = function (args, callback) {
 	if (!args.articleThumbnail) {
 		return callback('No article thumbnail');
 	}
-	if (!args.articleCategory) {
+	if (!args.category) {
 		return callback('No article category');
 	}
 
@@ -27,7 +27,7 @@ Lifetw.getArticle = function (args, callback) {
 				}
 				article.thumbnail = args.articleThumbnail;
 				article.crawledLink = args.articleLink;
-				article.category = args.articleCategory;
+				article.category = args.category;
 				return callback(null, article);
 			});
 		}
