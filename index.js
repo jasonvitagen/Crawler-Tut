@@ -224,7 +224,7 @@ var crawlCategory = function (args) {
 		});
 	}
 
-	async.waterfall([getArticleLinks, getArticles, postArticles], function (err, results) {
+	async.waterfall([getArticleLinks, getUniqueArticleLinks, getArticles, postArticles], function (err, results) {
 		if (err) {
 			return console.log(err);
 		}
@@ -235,8 +235,8 @@ var crawlCategory = function (args) {
 
 crawlCategory({
 
-	crawler : Teepr,
-	categoryLink : 'http://www.teepr.com/category/%E5%BD%B1%E7%89%87/',
+	crawler : Gigacircle,
+	categoryLink : 'http://tw.gigacircle.com/s17-1',
 	checkUniqueArticleLinksUrl : 'http://localhost:3000/crawled/filter-out-duplicate-article-links',
 	postArticlesUrl : 'http://localhost:3000/crawled/get-crawled-articles',
 	category : '生活'
