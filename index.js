@@ -5,6 +5,7 @@ var Teepr = require('./plugins/crawlers/teepr')
 	, async = require('async')
 	, request = require('request');
 
+
 // var imgur = new Imgur({
 // 	clientId : 'fe831b31baf537f'
 // });
@@ -143,13 +144,15 @@ var crawlCategory = function (args) {
 	if (!args.category) {
 		return console.log('No "category" arg');
 	}
-
+	console.log('a');
 	var getArticleLinks = function (done) {
+		console.log('b');
 		args.crawler.getArticleLinksFromCategory({
 			categoryLink : args.categoryLink
 		}, function (err, articleLinks) {
 			if (err) {
-				return console.log(err);
+				console.log('Get article links error');
+				done(err);
 			}
 			done(null, articleLinks);
 		});
@@ -157,6 +160,7 @@ var crawlCategory = function (args) {
 //'http://tw.gigacircle.com/s32-1'
 // 'http://localhost:3000/crawled/filter-out-duplicate-article-links'
 	var getUniqueArticleLinks = function (articleLinks, done) {
+		console.log('c');
 		request.post(args.checkUniqueArticleLinksUrl, {
 			form : {
 				articleLinks : articleLinks
@@ -167,6 +171,7 @@ var crawlCategory = function (args) {
 				if (body.err) {
 					return done(body.err);
 				} else {
+					console.log('get unique article links ok');
 					return done(null, body.articleLinks);
 				}
 			} else {
@@ -176,24 +181,25 @@ var crawlCategory = function (args) {
 	}
 
 	var getArticles = function (articleLinks, done) {
+		console.log('d');
 		var crawledArticles = [];
 		async.each(articleLinks, function (articleLink, okay) {
-
+			console.log(articleLink);
 			args.crawler.getArticle({
 				articleLink : articleLink.link,
 				articleThumbnail : articleLink.thumbnail,
 				category : args.category
 			}, function (err, article) {
-				if (err) {
-					okay(err);
+				if (err) { // ignore error
+					okay();
 				} else {
 					crawledArticles.push(article);
 					okay();
 				}
 			});
 		}, function (err) {
-			if (err) {
-				done(err);
+			if (err) { // ignore error
+				done(null, crawledArticles);
 			} else {
 				done(null, crawledArticles);
 			}
@@ -202,15 +208,22 @@ var crawlCategory = function (args) {
 	}
 
 	var postArticles = function (crawledArticles, done) {
+		console.log('e');
 		// fs.writeFile('demo.txt', JSON.stringify(crawledArticles), function (err) {
 
 		// });
 //'http://localhost:3000/crawled/get-crawled-articles'
-		request.post(args.postArticlesUrl, {
+		var options = {
+			url: args.postArticlesUrl,
+			headers : {
+				'Authentication' : 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoicWlzaGVuLmNoZW5nIiwic2NvcGVzIjpbImFwcHJvdmVDcmF3bGVkQXJ0aWNsZSIsImNhbkVkaXREZWxldGVBcnRpY2xlIiwiY2FuQWNjZXNzQ29udHJvbFBhbmVsIl0sImlhdCI6MTQyNzYzOTM3N30.HG3RjjRVUeb5JkyRJ0f0hbjVRfRgkQx76Q1XRW_MqoE'
+			},
 			form : {
 				articles : crawledArticles
 			}
-		}, function (err, response, body) {
+		};
+
+		request.post(options, function (err, response, body) {
 			if (!err && response.statusCode == 200) {
 				body = JSON.parse(body);
 				if (body.err) {
@@ -236,7 +249,7 @@ var crawlCategory = function (args) {
 crawlCategory({
 
 	crawler : Gigacircle,
-	categoryLink : 'http://tw.gigacircle.com/s17-1',
+	categoryLink : 'http://tw.gigacircle.com/s31-1',
 	checkUniqueArticleLinksUrl : 'http://localhost:3000/crawled/filter-out-duplicate-article-links',
 	postArticlesUrl : 'http://localhost:3000/crawled/get-crawled-articles',
 	category : '生活'

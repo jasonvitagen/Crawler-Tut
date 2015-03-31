@@ -34,17 +34,17 @@ Gigacircle.getArticle = function (args, callback) {
 }
 
 Gigacircle.getArticleLinksFromCategory = function (args, callback) {
-
+	console.log('b1');
 	if (!args) {
 		return callback('No args');
 	}
 	if (!args.categoryLink) {
 		return callback('No category link');
 	}
-
+	console.log('b2');
 	request(args.categoryLink, function (err, response, body) {
 		if (!err && response.statusCode == 200) {
-
+			console.log('b3');
 			behaviors.getArticleLinksFromCategory({
 				body : body
 			}, function (err, articleLinks) {
@@ -54,6 +54,8 @@ Gigacircle.getArticleLinksFromCategory = function (args, callback) {
 				return callback(null, articleLinks);
 			});
 
+		} else {
+			callback(err);
 		}
 	});
 	
