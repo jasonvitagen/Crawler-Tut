@@ -213,17 +213,20 @@ var crawlCategory = function (args) {
 
 		// });
 //'http://localhost:3000/crawled/get-crawled-articles'
-		var options = {
-			url: args.postArticlesUrl,
-			headers : {
-				'Authentication' : 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoicWlzaGVuLmNoZW5nIiwic2NvcGVzIjpbImFwcHJvdmVDcmF3bGVkQXJ0aWNsZSIsImNhbkVkaXREZWxldGVBcnRpY2xlIiwiY2FuQWNjZXNzQ29udHJvbFBhbmVsIl0sImlhdCI6MTQyNzYzOTM3N30.HG3RjjRVUeb5JkyRJ0f0hbjVRfRgkQx76Q1XRW_MqoE'
-			},
+
+		request.cookie('Authentication=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoicWlzaGVuLmNoZW5nIiwic2NvcGVzIjpbImFwcHJvdmVDcmF3bGVkQXJ0aWNsZSIsImNhbkVkaXREZWxldGVBcnRpY2xlIiwiY2FuQWNjZXNzQ29udHJvbFBhbmVsIl0sImlhdCI6MTQyNzYzOTM3N30.HG3RjjRVUeb5JkyRJ0f0hbjVRfRgkQx76Q1XRW_MqoE');
+
+		var j = request.jar();
+		var cookie = request.cookie('Authentication=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoicWlzaGVuLmNoZW5nIiwic2NvcGVzIjpbImFwcHJvdmVDcmF3bGVkQXJ0aWNsZSIsImNhbkVkaXREZWxldGVBcnRpY2xlIiwiY2FuQWNjZXNzQ29udHJvbFBhbmVsIl0sImlhdCI6MTQyNzYzOTM3N30.HG3RjjRVUeb5JkyRJ0f0hbjVRfRgkQx76Q1XRW_MqoE');
+		j.setCookie(cookie, 'http://128.199.93.98');
+
+		request.post({
+			url : args.postArticlesUrl,
+			jar : j,
 			form : {
 				articles : crawledArticles
-			}
-		};
-
-		request.post(options, function (err, response, body) {
+				}
+			}, function (err, response, body) {
 			if (!err && response.statusCode == 200) {
 				body = JSON.parse(body);
 				if (body.err) {
@@ -250,8 +253,8 @@ crawlCategory({
 
 	crawler : Gigacircle,
 	categoryLink : 'http://tw.gigacircle.com/s31-1',
-	checkUniqueArticleLinksUrl : 'http://localhost:3000/crawled/filter-out-duplicate-article-links',
-	postArticlesUrl : 'http://localhost:3000/crawled/get-crawled-articles',
+	checkUniqueArticleLinksUrl : 'http://128.199.93.98/crawled/filter-out-duplicate-article-links',
+	postArticlesUrl : 'http://128.199.93.98/crawled/get-crawled-articles',
 	category : '生活'
 
 });
